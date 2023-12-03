@@ -10,7 +10,7 @@
 
 <h2>Dependências</h2>
 
-<p>A Classe <code>ExportCSV</code> depende da biblioteca <code>Csv</code>. Certifique-se de adicionar a dependência executando o seguinte comando no seu projeto:</p>
+<p>A Classe <code>ExportCSV</code> depende da biblioteca <code>Csv</code>. Certifique-se de adicionar a dependência executando o seguinte comando no seu projeto: dotnet add package Csv</p>
 
 
 <h2>Licença</h2>

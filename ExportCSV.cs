@@ -12,17 +12,26 @@ namespace ExpCSV
     {
         private string[] ObterNomesDasPropriedades(object instancia)
         {
-            Type tipo = instancia.GetType();
-            PropertyInfo[] propriedades = tipo.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-
-            string[] nomesDasPropriedades = new string[propriedades.Length];
-
-            for (int i = 0; i < propriedades.Length; i++)
+            try
             {
-                nomesDasPropriedades[i] = propriedades[i].Name;
+                Type tipo = instancia.GetType();
+                PropertyInfo[] propriedades = tipo.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+
+                string[] nomesDasPropriedades = new string[propriedades.Length];
+
+                for (int i = 0; i < propriedades.Length; i++)
+                {
+                    nomesDasPropriedades[i] = propriedades[i].Name;
+                }
+
+                return nomesDasPropriedades;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
-            return nomesDasPropriedades;
         }
         private async IAsyncEnumerable<string[]> ObterArraysDeValores<T>(List<T> listaDeObjetos)
         {
@@ -37,7 +46,11 @@ namespace ExpCSV
                 {
                     object valor = propriedades[i].GetValue(objeto);
 
-                    if (valor != null)
+                    if (valor == null)
+                    {
+                        valoresDosCampos[i] = string.Empty;
+                    }
+                    else
                     {
                         if (propriedades[i].PropertyType == typeof(decimal))
                         {
@@ -69,11 +82,12 @@ namespace ExpCSV
                 yield return valoresDosCampos;
             }
         }
+
         public async Task ExportarCSV<T>(List<T> list, string localExport = "local")
         {
             try
             {
-                var memory = await ExportCsvMemory(list);
+                var memory = await ExportCsvBytes(list);
                 localExport = localExport == "local" ? Guid.NewGuid().ToString() + ".csv" : localExport;
                 await File.WriteAllBytesAsync(localExport, memory.ToArray());
             }
@@ -83,28 +97,23 @@ namespace ExpCSV
             }
 
         }
-        public async Task<MemoryStream> ExportCsvMemory<T>(List<T> list)
+        public async Task<byte[]> ExportCsvBytes<T>(List<T> list)
         {
             try
             {
                 var columnNames = ObterNomesDasPropriedades(list.FirstOrDefault());
                 var rows = ObterArraysDeValores(list);
                 var csv = await Csv.CsvWriter.WriteToTextAsync(columnNames, rows, ';');
-                using (MemoryStream memoryStream = new MemoryStream())
-                {
-                    using (StreamWriter streamWriter = new StreamWriter(memoryStream, Encoding.UTF8))
-                    {
-                        await streamWriter.WriteAsync(csv);
-                        await streamWriter.FlushAsync();
-                    }
-                    return memoryStream;
-                }
+
+                byte[] csvBytes = Encoding.UTF8.GetBytes(csv);
+
+                return csvBytes;
             }
             catch (Exception)
             {
                 throw;
             }
-
         }
+
     }
 }

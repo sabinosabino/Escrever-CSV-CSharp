@@ -10,12 +10,12 @@
 
 <h2>Dependências</h2>
 
-<p>A Classe <code>ExportCSV</code> depende da biblioteca <code>Csv</code>. Certifique-se de adicionar a dependência executando o seguinte comando no seu projeto: dotnet add package Csv</p>
+<p>A Classe <code>ExportCSV</code> depende da biblioteca <code>CsvHelper</code>. Certifique-se de adicionar a dependência executando o seguinte comando no seu projeto: dotnet add package CsvHelper</p>
 
 
 <h2>Licença</h2>
 
-<p>Este projeto é distribuído sob a <a href="LICENSE" target="_new">Licença MIT</a>. Sinta-se à vontade para usar, modificar e distribuir de acordo com suas necessidades.</p>
+<p>Este projeto é distribuído sob a <a href="LICENSE" target="">Licença MIT</a>. Sinta-se à vontade para usar, modificar e distribuir de acordo com suas necessidades.</p>
 
 <h2>Contribuições</h2>
 

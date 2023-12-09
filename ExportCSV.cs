@@ -1,9 +1,11 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using CsvHelper;
+using CsvHelper.Configuration;
 
 /*
-    DEPENDE DE: dotnet add package Csv
+    DEPENDE DE: dotnet add package CsvHelper
 */
 
 namespace ExpCSV
@@ -87,7 +89,7 @@ namespace ExpCSV
         {
             try
             {
-                var memory = await ExportCsvBytes(list);
+                var memory = await GeraCSV(list);
                 localExport = localExport == "local" ? Guid.NewGuid().ToString() + ".csv" : localExport;
                 await File.WriteAllBytesAsync(localExport, memory.ToArray());
             }
@@ -97,21 +99,28 @@ namespace ExpCSV
             }
 
         }
-        public async Task<byte[]> ExportCsvBytes<T>(List<T> list)
+
+        public async Task<byte[]> GeraCSV<T>(List<T> list)
         {
+            using var memoryStream = new MemoryStream();
+            using var write = new StreamWriter(memoryStream, System.Text.Encoding.UTF8);
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = ";"
+            };
+            using var csv = new CsvWriter(write, config);
+
             try
             {
-                var columnNames = ObterNomesDasPropriedades(list.FirstOrDefault());
-                var rows = ObterArraysDeValores(list);
-                var csv = await Csv.CsvWriter.WriteToTextAsync(columnNames, rows, ';');
-
-                byte[] csvBytes = Encoding.UTF8.GetBytes(csv);
-
-                return csvBytes;
+                await csv.WriteRecordsAsync(list);
+                await write.FlushAsync();
+                memoryStream.Position = 0;
+                return memoryStream.ToArray();
             }
             catch (Exception)
             {
-                throw;
+
+                throw new Exception("Erro ao criar arquivo.");
             }
         }
 
